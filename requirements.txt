@@ -1,0 +1,67 @@
+# PathAI Requirements
+# ====================
+# Install: pip install -e .
+# Or:      pip install -r requirements.txt
+
+# Core deep learning
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0  # Optional, for audio processing
+
+# Scientific computing
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+scikit-image>=0.20.0
+pandas>=2.0.0
+
+# Computer vision
+Pillow>=9.5.0
+opencv-python>=4.7.0
+albumentations>=1.3.0
+
+# WSI handling (requires OpenSlide system library)
+# System: sudo apt-get install openslide-tools libopenslide-dev
+# macOS:  brew install openslide
+openslide-python>=1.2.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.14.0
+
+# Experiment management
+pyyaml>=6.0
+tqdm>=4.65.0
+tensorboard>=2.13.0
+
+# Model architectures
+timm>=0.9.0  # For ViT variants, Swin Transformer
+
+# Pathology-specific (optional, install manually with weights)
+# ctranspath — see: https://github.com/Xiyue-Wang/TransPath
+# conch — see: https://github.com/mahmoodlab/CONCH
+# Available via HuggingFace (requires approval):
+# pip install git+https://github.com/mahmoodlab/CONCH.git
+
+# Stain normalization
+# staintools>=2.1.2  # Alternative Vahadane implementation
+
+# Development tools
+black>=23.0.0
+flake8>=6.0.0
+pytest>=7.3.0
+pytest-cov>=4.1.0
+pre-commit>=3.3.0
+ipython>=8.13.0
+jupyter>=1.0.0
+jupyterlab>=4.0.0
+nbformat>=5.9.0
+
+# Reporting
+fpdf2>=2.7.0  # PDF report generation
+
+# Utilities
+psutil>=5.9.0
+h5py>=3.8.0   # Optional: for HDF5 feature caching
+zarr>=2.14.0  # Optional: for Zarr-based WSI access

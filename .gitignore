@@ -1,0 +1,104 @@
+# PathAI .gitignore
+# =================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.conda/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Data directories (large files)
+data/
+*.svs
+*.tif
+*.tiff
+*.ndpi
+*.mrxs
+*.scn
+*.bif
+*.vms
+*.vmu
+
+# Cached features
+*.pt
+!tests/**/*.pt  # Allow small test fixtures
+
+# Model weights
+weights/
+checkpoints/
+*.pth
+
+# Results (large)
+results/
+logs/
+runs/
+
+# Feature files
+*.npy
+*.h5
+*.hdf5
+
+# Temporary files
+*.tmp
+*.log
+*.cache
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Pre-commit
+.pre-commit-config.yaml.bak
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini

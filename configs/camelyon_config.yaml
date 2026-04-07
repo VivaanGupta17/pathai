@@ -1,0 +1,133 @@
+# PathAI Camelyon16 Training Configuration
+# =========================================
+# Benchmark: breast cancer metastasis detection in lymph node H&E slides
+# Dataset:   https://camelyon16.grand-challenge.org/
+
+# ---- Experiment Metadata ----
+experiment:
+  name: camelyon16_clam_sb_ctranspath
+  description: "CLAM-SB with CTransPath features on Camelyon16"
+  seed: 42
+  tags:
+    - camelyon16
+    - clam_sb
+    - ctranspath
+    - binary_classification
+
+# ---- Dataset ----
+data:
+  dataset: camelyon16
+  data_dir: /data/camelyon16       # Root directory of Camelyon16
+  feature_dir: /data/camelyon16_features/ctranspath_20x  # Pre-extracted features
+  class_names:
+    - Normal
+    - Tumor
+  num_classes: 2
+
+  # Tile extraction settings (used by extract_features.py)
+  magnification: 20              # Target magnification
+  tile_size: 224                 # Tile size in pixels
+  tile_overlap: 0                # No overlap between tiles
+  stain_normalize: macenko       # 'macenko', 'reinhard', or 'none'
+  tissue_threshold: 0.5          # Min tissue fraction to include tile
+
+  # MIL bag settings
+  max_bag_size: 10000            # Max tiles per slide (None = no limit)
+  min_bag_size: 16               # Skip slides with fewer tiles
+  shuffle_tiles: true            # Shuffle tiles within each bag
+
+# ---- Feature Extractor ----
+feature_extractor:
+  name: ctranspath               # 'resnet50', 'ctranspath', 'uni', 'conch'
+  weights_path: null             # Path to pretrained weights (null = download)
+  feature_dim: 768               # Output feature dimension
+  batch_size: 256                # Batch size for feature extraction
+  num_workers: 8                 # DataLoader workers
+
+# ---- Model Architecture ----
+model:
+  name: clam_sb                  # 'clam_sb', 'clam_mb', 'transmil', 'abmil'
+  num_classes: 2
+  gate: true                     # Gated attention
+  size_arg: small                # 'small' (1024→512→256) or 'big' (1024→512→384)
+  dropout: true                  # Dropout in feature encoder (p=0.25)
+  k_sample: 8                    # Top-K tiles for instance pseudo-supervision
+  instance_loss_fn: svm          # 'svm' or 'ce' for instance-level loss
+  subtyping: false               # Set true for multi-class subtyping tasks
+
+  # TransMIL-specific (ignored for CLAM/ABMIL)
+  transmil:
+    dim: 512
+    num_layers: 2
+    num_heads: 8
+    mlp_dim: 512
+    num_landmarks: 256
+    use_nystrom: true
+    use_pos_enc: true
+    pos_enc_type: morphology     # 'morphology', 'learned', or 'none'
+
+  # ABMIL-specific (ignored for CLAM/TransMIL)
+  abmil:
+    input_dim: 1024
+    hidden_dim: 512
+    attention_dim: 256
+    num_heads: 1
+    gated: true
+    top_k: null                  # null = use attention, int = use Top-K pooling
+
+# ---- Training ----
+training:
+  n_epochs: 20
+  lr: 2.0e-4                     # Initial learning rate
+  weight_decay: 1.0e-5
+  optimizer: adam                # 'adam', 'adamw', 'sgd'
+  scheduler: cosine              # 'cosine', 'step', 'onecycle', 'none'
+  lr_step_size: 10               # For step scheduler
+  lr_gamma: 0.1                  # For step scheduler
+
+  # Loss
+  bag_loss: ce                   # 'ce' (cross-entropy) or 'focal'
+  inst_loss_weight: 0.3          # λ for CLAM instance loss: L = 0.7*L_bag + 0.3*L_inst
+  focal_gamma: 2.0               # Focal loss gamma (if bag_loss=focal)
+  class_weights: null            # [w0, w1, ...] for class imbalance, or null
+
+  # Efficiency
+  amp: true                      # Mixed precision training
+  grad_accum_steps: 1            # Gradient accumulation steps
+
+  # Sampling
+  weighted_sampling: true        # Class-balanced sampling
+
+  # Regularization
+  attention_reg: false           # Attention entropy regularization
+  attention_reg_weight: 0.01
+
+  # Early stopping
+  early_stopping_patience: 20    # Stop if no improvement for N epochs
+
+  # Checkpointing
+  save_every: 5                  # Save checkpoint every N epochs
+  use_tensorboard: true
+
+# ---- Evaluation ----
+evaluation:
+  metrics:
+    - auroc
+    - accuracy
+    - f1
+    - precision
+    - recall
+    - confusion_matrix
+  compute_froc: true             # Compute FROC for Camelyon16
+  froc_fp_rates: [0.25, 0.5, 1, 2, 4, 8]
+  generate_heatmaps: true
+  heatmap_alpha: 0.4
+  heatmap_colormap: jet
+  top_k_tiles: 20
+
+# ---- Output ----
+output:
+  base_dir: results
+  save_predictions: true         # Save per-slide predictions to CSV
+  save_attention_scores: true    # Save attention scores as .npy files
+  log_level: INFO
