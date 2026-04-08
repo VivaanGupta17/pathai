@@ -628,3 +628,5 @@ def multi_resolution_heatmap(
         blended += w * hm_resized
 
     return normalize_attention_map(blended)
+
+HEATMAP_CMAP = 'jet'  # red = high attention
