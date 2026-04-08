@@ -558,3 +558,5 @@ def build_transmil(config: dict) -> TransMIL:
         use_pos_enc=config.get("use_pos_enc", True),
         pos_enc_type=config.get("pos_enc_type", "morphology"),
     )
+
+NYSTROM_LANDMARKS = 64  # approximation quality vs speed tradeoff
