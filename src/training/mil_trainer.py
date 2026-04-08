@@ -696,3 +696,21 @@ class MILTrainer:
             self.best_val_metric, self.best_epoch,
         )
         return history
+
+# distributed feature extraction for large WSI datasets
+# uses DataParallel for multi-GPU when available
+def setup_distributed_feature_extraction(model, device_ids=None):
+    """wrap feature extractor with DataParallel for multi-GPU extraction"""
+    import torch
+    import torch.nn as nn
+
+    if device_ids is None:
+        n_gpus = torch.cuda.device_count()
+        device_ids = list(range(n_gpus)) if n_gpus > 1 else None
+
+    if device_ids and len(device_ids) > 1:
+        model = nn.DataParallel(model, device_ids=device_ids)
+        print(f'using {len(device_ids)} GPUs for feature extraction: {device_ids}')
+    else:
+        print('single GPU or CPU for feature extraction')
+    return model
