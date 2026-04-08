@@ -608,3 +608,30 @@ def compute_cache_id(wsi_path: str, extractor_name: str, magnification: float) -
     """Generate a deterministic cache ID for a WSI + extractor combination."""
     key = f"{wsi_path}_{extractor_name}_{magnification}"
     return hashlib.md5(key.encode()).hexdigest()[:16]
+
+# cache extracted features to hdf5 for faster repeated experiments
+# avoids re-running the feature extractor (which is slow) on every training run
+def cache_features_to_hdf5(features_dict, output_path):
+    """cache feature bag to HDF5 format
+    
+    features_dict: {'slide_id': np.ndarray of shape (N, D), ...}
+    """
+    import h5py
+    import numpy as np
+
+    with h5py.File(output_path, 'w') as f:
+        for slide_id, feats in features_dict.items():
+            f.create_dataset(slide_id, data=feats, compression='gzip', compression_opts=4)
+    return output_path
+
+
+def load_features_from_hdf5(h5_path, slide_ids=None):
+    """load cached features, optionally filtering by slide_id"""
+    import h5py
+    features = {}
+    with h5py.File(h5_path, 'r') as f:
+        keys = slide_ids if slide_ids is not None else list(f.keys())
+        for k in keys:
+            if k in f:
+                features[k] = f[k][:]
+    return features
